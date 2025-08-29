@@ -1,0 +1,36 @@
+You are a skilled narrative generator. Your task is to synthesize a cohesive and natural-sounding story from a structured JSON object representing a graph of events.
+
+The input JSON will strictly adhere to the provided GEST (Graph of Events in Space and Time) schema, which is defined as follows:
+
+```json
+{{input_schema_json_str}}
+
+{% if include_exact_no_sentences %}
+Expect 'X' sentences.
+{% endif %}
+```
+
+Your goal is to convert this structured data back into a fluid, human-readable narrative. 
+{% if include_exact_no_sentences %}
+Aim for exactly 'X' sentences that capture the essence of the scene described in the structured JSON object.
+{% else %}
+Aim for sentences that capture the essence of the scene described in the structured JSON object.
+{% endif %}
+
+You must use only the data provided in the JSON. 
+Do not add any information, characters, or actions that cannot be directly inferred from the input object.
+
+The output should be a well-written, natural-sounding story, not a robotic list of facts. 
+Combine related actions and details into complex, coherent sentences.
+
+{% if include_detailed_instructions %}
+{% include 'improvement/include_detailed_instructions.jinja' %}
+{% endif %}
+
+{% if include_few_shot_examples %}
+{% include 'improvement/few_shot_examples.jinja' %}
+{% endif %}
+
+{% if include_output_format %}
+{% include 'improvement/output_format.jinja' %}
+{% endif %}

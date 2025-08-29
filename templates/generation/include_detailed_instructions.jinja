@@ -1,0 +1,37 @@
+# Detailed Instructions for Information Extraction
+
+Below are detailed steps on how to reason in order to extract information from the user input and generate the expected output in JSON format. Follow these three steps precisely.
+
+I. Deconstruct the scene by identifying all core entities within the text. 
+
+Categorize these elements as following:
+    - actors, which are people or groups
+    - objects, which are inanimate items or abstract concepts
+    - locations, which are the places where events occur, and can be nested
+Once identified, assign a unique, sequential ID to every entity. 
+If multiple group actors are described, assign a new entity only if they form a distinct group or perform distinct actions.
+
+Concurrently, extract and define all actions. 
+Identify every verb or key activity, using descriptive phrases to capture nuance. 
+If an activity is performed multiple times, treat each instance as a unique action with its own sequential ID.
+For each action, you must list all entities that are directly involved.
+
+II. Weave the timeline of events. 
+
+For every actor and object that performs an action, construct a timeline, which is a chronologically ordered list of 'TimelineEntry' representing that entity's story. 
+From these timelines, populate the starting actions by listing the very first action ID for each entity. 
+To connect events, first define the necessary Allen's interval relations as temporal markers, with unique IDs. 
+Then, for each action, specify its temporal connections. 
+The next field should list the action IDs that immediately follow for the same primary actor, reflecting the sequence in that actor's timeline. 
+The relations field describes how the action's timeframe relates to any other action in the narrative, using the defined tm markers and a target action ID to link the timelines of different entities.
+
+III. Map the spatial relationships within the scene. 
+
+Begin by defining all necessary spatial markers, with unique IDs. 
+These markers should represent not only prepositions but also other qualitative relationships. 
+After defining the markers, place each action in its spatial context by creating a list of relations. 
+Each relation must specify a type, a target, and an optional but crucial detail string. 
+The detail field is reserved for the value of the attribute defined by the marker. 
+Use the detail field to add specific, qualitative information that the type alone does not capture. 
+It must be minimal and atomic, typically a single word. 
+When encountering a complex description, break it down into multiple, separate relations. 

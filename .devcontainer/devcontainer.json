@@ -1,0 +1,27 @@
+{
+  "name": "Graph of Events in Space and Time",
+  "dockerComposeFile": "docker-compose.dev.yml",
+  "service": "gest",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "postCreateCommand": "uv pip install --system -e .",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.debugpy",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "ms-azuretools.vscode-docker",
+        "ms-toolsai.jupyter",
+        "mechatroner.rainbow-csv",
+        "samuelcolvin.jinjahtml",
+        "streetsidesoftware.code-spell-checker",
+        "tamasfe.even-better-toml"
+      ],
+      "settings": {
+          "$ref": "./.vscode/settings.json"
+      }
+    }
+  },
+  "remoteUser": "root"
+}

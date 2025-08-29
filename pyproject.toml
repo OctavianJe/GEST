@@ -1,0 +1,38 @@
+[project]
+name = "gest"
+version = "0.1.0"
+description = "Master Thesis - Improve the Text Decoder for Graphs of Events in Space and Time"
+authors = [{ name = "Octavian Ploscaru", email = "octavian.ploscaru@stud.acs.upb.ro" }]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.13.4",
+    "envtoml>=0.1.2",
+    "google-genai>=1.24.0",
+    "jinja2>=3.1.6",
+    "ollama>=0.5.1",
+    "openai>=1.93.0",
+    "pandas>=2.3.0",
+    "pydantic>=2.11.7",
+    "pygmtools",
+    "python-dotenv>=1.1.1",
+    "retry>=0.9.2",
+    "scikit-learn>=1.7.0",
+    "sentence-transformers>=4.1.0",
+    "tqdm>=4.67.1",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.4.0",
+    "pytest-cov>=6.2.1",
+    "pytest-mock>=3.14.1",
+]
+develop = [
+    "google-api-python-client>=2.177.0",
+    "ipykernel>=6.29.5",
+    "ipython>=9.3.0",
+]
+
+[tool.uv.sources]
+pygmtools = { git = "https://github.com/Thinklab-SJTU/pygmtools.git", rev = "80399b1b07722340dd8d6e1bcce2618395fac2db" }

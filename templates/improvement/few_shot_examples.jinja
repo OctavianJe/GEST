@@ -1,0 +1,500 @@
+# Examples
+
+Below are some examples of how to structure your output based on the provided schema. 
+Each example includes an input description and the corresponding expected JSON output.
+
+{# Example template
+Example {example_number}:
+
+Input: "
+```json
+{gest}
+```
+
+{% if include_exact_no_sentences %}
+Expect {{no_sentences}} sentences.
+{% endif %}"
+
+Output: "{text}"
+#}
+
+Example 1:
+
+Input: "
+```json
+{
+    "actor0": {
+        "action": "Exists",
+        "entities": [
+            "actor0",
+        ],
+        "location": None,
+        "timeframe": None,
+        "properties": {
+            "gender": "female",
+            "name": "woman",
+        },
+    },
+    "actor1": {
+        "action": "Exists",
+        "entities": [
+            "actor1",
+        ],
+        "location": None,
+        "timeframe": None,
+        "properties": {
+            "gender": "unknown",
+            "name": "observer",
+        },
+    },
+    "location0": {
+        "action": "Exists",
+        "entities": [
+            "location0",
+        ],
+        "location": None,
+        "timeframe": None,
+        "properties": {
+            "type": "room",
+        },
+    },
+    "location1": {
+        "action": "Exists",
+        "entities": [
+            "location1",
+        ],
+        "location": [
+            "location0",
+        ],
+        "timeframe": None,
+        "properties": {
+            "type": "floor",
+        },
+    },
+    "object0": {
+        "action": "Exists",
+        "entities": [
+            "object0",
+        ],
+        "location": None,
+        "timeframe": None,
+        "properties": {
+            "type": "camera",
+        },
+    },
+    "action0": {
+        "action": "is seen",
+        "entities": [
+            "actor0",
+        ],
+        "location": [
+            "location0",
+        ],
+        "timeframe": None,
+        "properties": {},
+    },
+    "action1": {
+        "action": "standing",
+        "entities": [
+            "actor0",
+        ],
+        "location": [
+            "location0",
+        ],
+        "timeframe": None,
+        "properties": {},
+    },
+    "action2": {
+        "action": "leads into",
+        "entities": [
+            "actor0",
+        ],
+        "location": [
+            "location0",
+        ],
+        "timeframe": None,
+        "properties": {},
+    },
+    "action3": {
+        "action": "dances",
+        "entities": [
+            "actor0",
+        ],
+        "location": [
+            "location0",
+        ],
+        "timeframe": None,
+        "properties": {},
+    },
+    "action4": {
+        "action": "captures",
+        "entities": [
+            "object0",
+        ],
+        "location": [
+            "location0",
+        ],
+        "timeframe": None,
+        "properties": {},
+    },
+    "action5": {
+        "action": "ends by",
+        "entities": [
+            "actor0",
+        ],
+        "location": [
+            "location0",
+        ],
+        "timeframe": None,
+        "properties": {},
+    },
+    "action6": {
+        "action": "laying",
+        "entities": [
+            "actor0",
+        ],
+        "location": [
+            "location1",
+        ],
+        "timeframe": None,
+        "properties": {},
+    },
+    "temporal": {
+        "timeline": {
+            "actor0": [
+                ("action1", "standing"),
+                ("action2", "leads into"),
+                ("action3", "dances"),
+                ("action5", "ends by"),
+                ("action6", "laying"),
+            ],
+            "actor1": [
+                ("action0", "is seen"),
+            ],
+            "object0": [
+                ("action4", "captures"),
+            ],
+        },
+        "starting_actions": {
+            "actor0": "action1",
+            "actor1": "action0",
+            "object0": "action4",
+        },
+        "tm0": {"type": "during"},
+        "tm1": {"type": "met_by"},
+        "tm2": {"type": "meets"},
+        "tm3": {"type": "overlaps"},
+        "action0": {
+            "relations": [
+                {"type": "tm0", "target": "action1"},
+            ],
+            "next": [],
+        },
+        "action1": {
+            "relations": [
+                {"type": "tm1", "target": "action0"},
+                {"type": "tm2", "target": "action2"},
+            ],
+            "next": ["action2"],
+        },
+        "action2": {
+            "relations": [
+                {"type": "tm2", "target": "action3"},
+            ],
+            "next": ["action3"],
+        },
+        "action3": {
+            "relations": [
+                {"type": "tm1", "target": "action2"},
+                {"type": "tm2", "target": "action5"},
+                {"type": "tm3", "target": "action4"},
+            ],
+            "next": ["action5"],
+        },
+        "action4": {
+            "relations": [
+                {"type": "tm0", "target": "action3"},
+            ],
+            "next": [],
+        },
+        "action5": {
+            "relations": [
+                {"type": "tm1", "target": "action3"},
+                {"type": "tm2", "target": "action6"},
+            ],
+            "next": ["action6"],
+        },
+        "action6": {
+            "relations": [
+                {"type": "tm1", "target": "action5"},
+            ],
+            "next": [],
+        },
+    },
+    "spatial": {
+        "sm0": {"type": "in"},
+        "sm1": {"type": "around"},
+        "sm2": {"type": "on"},
+        "action0": {
+            "relations": [
+                {"type": "sm0", "target": "location0"},
+            ]
+        },
+        "action1": {
+            "relations": [
+                {"type": "sm0", "target": "location0"},
+            ]
+        },
+        "action2": {
+            "relations": [
+                {"type": "sm0", "target": "location0"},
+            ]
+        },
+        "action3": {
+            "relations": [
+                {"type": "sm0", "target": "location0"},
+                {"type": "sm1", "target": "location0"},
+            ]
+        },
+        "action4": {
+            "relations": [
+                {"type": "sm0", "target": "location0"},
+            ]
+        },
+        "action5": {
+            "relations": [
+                {"type": "sm0", "target": "location0"},
+            ]
+        },
+        "action6": {
+            "relations": [
+                {"type": "sm2", "target": "location1"},
+            ]
+        },
+    },
+}
+```
+
+{% if include_exact_no_sentences %}
+Expect 3 sentences.
+{% endif %}"
+
+Output: "A young woman is seen standing in a room and leads into her dancing. The girl dances around the room while the camera captures her movements. She continues dancing around the room and ends by laying on the floor."
+
+Example 2:
+
+Input: "
+```json
+{
+    "actor0": {
+        "action": "Exists",
+        "entities": ["actor0"],
+        "location": None,
+        "timeframe": None,
+        "properties": {"gender": "male", "name": "president"},
+    },
+    "actor1": {
+        "action": "Exists",
+        "entities": ["actor1"],
+        "location": None,
+        "timeframe": None,
+        "properties": {"gender": "female", "name": "woman"},
+    },
+    "actor2": {
+        "action": "Exists",
+        "entities": ["actor2"],
+        "location": None,
+        "timeframe": None,
+        "properties": {"gender": "unknown", "name": "people"},
+    },
+    "actor3": {
+        "action": "Exists",
+        "entities": ["actor3"],
+        "location": None,
+        "timeframe": None,
+        "properties": {"gender": "unknown", "name": "people"},
+    },
+    "actor4": {
+        "action": "Exists",
+        "entities": ["actor4"],
+        "location": None,
+        "timeframe": None,
+        "properties": {"gender": "unknown", "name": "people"},
+    },
+    "actor5": {
+        "action": "Exists",
+        "entities": ["actor5"],
+        "location": None,
+        "timeframe": None,
+        "properties": {"gender": "unknown", "name": "people"},
+    },
+    "location0": {
+        "action": "Exists",
+        "entities": ["location0"],
+        "location": None,
+        "timeframe": None,
+        "properties": {"type": "field"},
+    },
+    "object0": {
+        "action": "Exists",
+        "entities": ["object0"],
+        "location": None,
+        "timeframe": None,
+        "properties": {"type": "beer"},
+    },
+    "object1": {
+        "action": "Exists",
+        "entities": ["object1"],
+        "location": None,
+        "timeframe": None,
+        "properties": {"type": "hands"},
+    },
+    "action0": {
+        "action": "is seen",
+        "entities": ["actor0", "actor2"],
+        "location": ["location0"],
+        "timeframe": None,
+        "properties": {},
+    },
+    "action1": {
+        "action": "walk",
+        "entities": ["actor0", "actor1"],
+        "location": ["location0"],
+        "timeframe": None,
+        "properties": {},
+    },
+    "action2": {
+        "action": "speak",
+        "entities": ["actor0"],
+        "location": ["location0"],
+        "timeframe": None,
+        "properties": {},
+    },
+    "action3": {
+        "action": "cheer",
+        "entities": ["actor3"],
+        "location": ["location0"],
+        "timeframe": None,
+        "properties": {},
+    },
+    "action4": {
+        "action": "shake",
+        "entities": ["actor0", "actor4", "object1"],
+        "location": ["location0"],
+        "timeframe": None,
+        "properties": {},
+    },
+    "action5": {
+        "action": "share",
+        "entities": ["actor0", "actor5", "object0"],
+        "location": ["location0"],
+        "timeframe": None,
+        "properties": {},
+    },
+    "temporal": {
+        "timeline": {
+            "actor0": [
+                ("action0", "is seen"),
+                ("action1", "walk"),
+                ("action2", "speak"),
+                ("action4", "shake"),
+                ("action5", "share"),
+            ],
+            "actor1": [("action1", "walk")],
+            "actor2": [("action0", "is seen")],
+            "actor3": [("action3", "cheer")],
+            "actor4": [("action4", "shake")],
+            "actor5": [("action5", "share")],
+        },
+        "starting_actions": {
+            "actor0": "action0",
+            "actor1": "action1",
+            "actor2": "action0",
+            "actor3": "action3",
+            "actor4": "action4",
+            "actor5": "action5",
+        },
+        "tm0": {"type": "during"},
+        "tm1": {"type": "meets"},
+        "tm2": {"type": "overlaps"},
+        "tm3": {"type": "before"},
+        "tm4": {"type": "after"},
+        "action0": {
+            "relations": [{"type": "tm0", "target": "action1"}],
+            "next": ["action1"],
+        },
+        "action1": {
+            "relations": [{"type": "tm1", "target": "action2"}],
+            "next": ["action2"],
+        },
+        "action2": {
+            "relations": [
+                {"type": "tm2", "target": "action3"},
+                {"type": "tm1", "target": "action4"},
+            ],
+            "next": ["action4"],
+        },
+        "action3": {"relations": [{"type": "tm0", "target": "action2"}], "next": []},
+        "action4": {
+            "relations": [{"type": "tm3", "target": "action5"}],
+            "next": ["action5"],
+        },
+        "action5": {"relations": [{"type": "tm4", "target": "action4"}], "next": []},
+    },
+    "spatial": {
+        "sm0": {"type": "in"},
+        "sm1": {"type": "size"},
+        "sm2": {"type": "next to"},
+        "sm3": {"type": "surrounded by"},
+        "sm4": {"type": "role"},
+        "sm5": {"type": "with"},
+        "sm6": {"type": "uses"},
+        "sm7": {"type": "eachOf"},
+        "action0": {
+            "relations": [
+                {"type": "sm0", "target": "location0"},
+                {"type": "sm1", "target": "location0", "detail": "large"},
+            ]
+        },
+        "action1": {
+            "relations": [
+                {"type": "sm0", "target": "location0"},
+                {"type": "sm2", "target": "actor1"},
+                {"type": "sm3", "target": "actor2"},
+            ]
+        },
+        "action2": {
+            "relations": [
+                {"type": "sm0", "target": "location0"},
+            ]
+        },
+        "action3": {
+            "relations": [
+                {"type": "sm0", "target": "location0"},
+                {"type": "sm4", "target": "actor3", "detail": "cheering crowd"},
+            ]
+        },
+        "action4": {
+            "relations": [
+                {"type": "sm0", "target": "location0"},
+                {"type": "sm5", "target": "actor4"},
+                {"type": "sm6", "target": "object1"},
+                {"type": "sm7", "target": "actor4", "detail": "has two hands"},
+            ]
+        },
+        "action5": {
+            "relations": [
+                {"type": "sm0", "target": "location0"},
+                {"type": "sm5", "target": "actor5"},
+                {"type": "sm6", "target": "object0"},
+            ]
+        },
+    },
+}
+```
+
+{% if include_exact_no_sentences %}
+Expect 3 sentences.
+{% endif %}"
+
+Output: "The former president is seen walking in a large field next to a woman and surrounded by a large crowd. The man gives a speech while people cheering and he shakes hands with others. The man then shares a beer with other people around him."

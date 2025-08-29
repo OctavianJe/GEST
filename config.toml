@@ -1,0 +1,72 @@
+[llm]
+    [llm.ollama]
+        base_url = "https://ollama.molodetz.nl/" # "http://127.0.0.1:11434/"
+        model = "deepseek-r1:8b"
+        think = true
+
+    [llm.openai]
+        api_key = "$OPENAI_API_KEY"
+        model = "o3"
+
+    [llm.googleai]
+        api_key = "$GOOGLEAI_API_KEY"
+        backup_keys = "$GOOGLEAI_API_BACKUP_KEYS"
+        model = "gemini-2.5-pro"
+
+[gest]
+    [gest.engine]
+        retries = 3
+        delay = 0
+        [gest.engine.generation]
+            llm_provider = "googleai" # "ollama", "openai" or "googleai"
+            retries = 5
+            delay = 0
+        [gest.engine.improvement]
+            llm_provider = "googleai" # "ollama", "openai" or "googleai"
+            retries = 3
+            delay = 0
+            text_similarity_threshold = 0.9
+            include_exact_no_sentences = true # true, false
+
+    [gest.logging]
+        level = "INFO"
+        dir = "/workspaces/GEST/logs"
+
+    [gest.templates]
+        dir = "/workspaces/GEST/templates"
+
+    [gest.alerts]
+        enabled = true # true, false
+        from_email = "$ALERTS_FROM_GMAIL_EMAIL"
+        to_emails = "$ALERTS_TO_EMAILS"
+
+[text_similarity]
+    [text_similarity.models]
+        cache_dir = "/workspaces/GEST/miscellaneous/.cache/text_similarity/models"
+        model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+
+[graph_matching]
+    [graph_matching.embeddings]
+        cache_dir = "/workspaces/GEST/miscellaneous/.cache/graph_matching/embeddings"
+
+        [graph_matching.embeddings.glove50]
+            model_name = "glove-wiki-gigaword-50"
+            file_name = "glove.6B.zip"
+            url = "https://huggingface.co/stanfordnlp/glove/resolve/main/glove.6B.zip"
+            dim = 50
+
+        [graph_matching.embeddings.glove300]
+            model_name = "glove-wiki-gigaword-300"
+            file_name = "glove.6B.zip"
+            url = "https://huggingface.co/stanfordnlp/glove/resolve/main/glove.6B.zip"
+            dim = 300
+
+        [graph_matching.embeddings.w2v_google]
+            model_name = "word2vec-google-news-300"
+            file_name = "GoogleNews-vectors-negative300.bin"
+            url = "https://figshare.com/ndownloader/files/10798046"
+            dim = 300
+
+[datetime]
+    timezone = "Europe/Bucharest"
+    format = "%Y-%m-%d %H:%M:%S"

@@ -1,0 +1,28 @@
+Your previous response is not the expected one considering encapsulating the user's input into JSON object representation. 
+
+This is a result of evaluating content similarity between original narrative and the recomputed one. 
+The minimum allowed threshold is {{text_similarity_threshold}}.
+
+Original user narrative input:
+
+```str
+{{original_user_input}}
+```
+
+Proposed GEST:
+
+```json
+{{proposed_gest_content}}
+```
+
+Recomputed narrative:
+
+```str
+{{recomputed_narrative}}
+```
+
+Currently, the text similarity score between the original user narrative input and the recomputed narrative is {{current_text_similarity_score}}.
+
+You must improve the proposed GEST using ONLY the original user narrative input such that the recomputed narrative context will match the original user narrative input with a text similarity score of at least {{text_similarity_threshold}}.
+
+Keep in mind that the output must be a valid JSON object that conforms to the JSON object representation. If the output does not match the schema, it will be considered invalid.
