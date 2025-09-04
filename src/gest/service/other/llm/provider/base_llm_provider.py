@@ -20,6 +20,7 @@ class LLMProviderEnum(str, Enum):
     OLLAMA = "ollama"
     OPEN_AI = "openai"
     GOOGLE_AI = "googleai"
+    CUSTOM_INFERENCE = "custom_inference"
 
 
 class LLMExpectedResultType(str, Enum):

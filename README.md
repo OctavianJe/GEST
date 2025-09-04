@@ -11,6 +11,9 @@ Master Degree Thesis
 ## Project setup
 - [uv](https://docs.astral.sh/uv/) for package management
 
+## Shared resources
+- [Google Drive](https://drive.google.com/drive/folders/1zr0JyMETI44G2ikBb93U3lLXUdiOqqnZ?usp=sharing) for fine-tuned models
+
 <!-- TODO: Mention about settings required to be made for using Gmail provider
 
 Steps

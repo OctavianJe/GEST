@@ -2,10 +2,10 @@ import csv
 import json
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Generic, Optional, TypeVar
+from typing import Any, Callable, Generic, List, Optional, TypeVar
 
 import pandas as pd
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
 from gest.common.helpers.field_names import FieldNameMixin
 from gest.data.gest import GEST
@@ -41,19 +41,49 @@ class BaseCSVDataset(ABC, Generic[T]):
 
     def append_row_to_csv(self, row) -> None:
         """
-        Append a row to disk. Subclasses can override for idempotency logic.
+        Append a row to disk. Creates the file (and parent dirs) if needed, and writes the header only for a new/empty file.
+        Subclasses can override for idempotency logic.
         """
         values = self._serialize_row(row)
         single_df = pd.DataFrame([values], columns=self._columns)
-        mode = "a" if self.path.exists() else "w"
-        header = not self.path.exists()
+
+        file_has_content = self.path.exists() and self.path.stat().st_size > 0
+
         single_df.to_csv(
             self.path,
-            mode=mode,
+            mode="a" if file_has_content else "w",
             index=False,
-            header=header,
+            header=not file_has_content,
             quoting=csv.QUOTE_ALL,
         )
+
+    def intersect_as(
+        self,
+        other: "BaseCSVDataset",
+        keys: list[str],
+        ctor: Callable[..., Any],
+    ) -> List[Any]:
+        """
+        Generic intersection over the given key columns.
+        Returns a list of objects constructed by `ctor`, which is called with
+        keyword args matching the column names in `keys`.
+
+        Example:
+            keys = ["dataset", "id"]
+            ctor = lambda dataset, id: DatasetId(dataset=SourceDatasetEnum(dataset), id=str(id))
+        """
+        if not keys:
+            return []
+
+        left = self.df[keys].drop_duplicates()
+        right = other.df[keys].drop_duplicates()
+        merged = left.merge(right, on=keys, how="inner")
+
+        out: List[Any] = []
+        for _, row in merged.iterrows():
+            kwargs = {k: row[k] for k in keys}
+            out.append(ctor(**kwargs))
+        return out
 
     @abstractmethod
     def _serialize_row(self, row: T) -> list:
@@ -61,8 +91,8 @@ class BaseCSVDataset(ABC, Generic[T]):
         ...
 
 
-class GestRow(FieldNameMixin):
-    """Schema for a single row in the GEST master dataset."""
+class DatasetId(FieldNameMixin):
+    """Base target dataset unique identifier."""
 
     dataset: SourceDatasetEnum = Field(
         ..., description="Name of the originating dataset"
@@ -70,6 +100,13 @@ class GestRow(FieldNameMixin):
     id: str = Field(
         ..., description="Unique sample identifier within the source dataset"
     )
+
+    model_config = ConfigDict(frozen=True)
+
+
+class GestRow(DatasetId):
+    """Schema for a single row in the GEST master dataset."""
+
     text: str = Field(..., description="Flattened / cleaned caption or transcript")
     gest: GEST = Field(..., description="Annotations in GEST format")
 
@@ -117,6 +154,21 @@ class GestDataset(BaseCSVDataset[GestRow]):
         mask = (self.df[dataset_col] == source_dataset.value) & (self.df[id_col] == id)
         matches = self.df.index[mask].tolist()
         return matches[0] if matches else None
+
+    def intersect_dataset_ids(self, other: "GestDataset") -> List[DatasetId]:
+        """
+        Return the intersection of (dataset, id) keys as a list of DatasetId objects.
+        """
+        ds_col = GestRow.fields().dataset
+        id_col = GestRow.fields().id
+
+        def _ctor(**kw) -> DatasetId:
+            return DatasetId(
+                dataset=SourceDatasetEnum(kw[ds_col]),
+                id=str(kw[id_col]),
+            )
+
+        return self.intersect_as(other, [ds_col, id_col], _ctor)
 
 
 class GestBlacklistRow(FieldNameMixin):

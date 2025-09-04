@@ -1,8 +1,8 @@
 [llm]
     [llm.ollama]
-        base_url = "https://ollama.molodetz.nl/" # "http://127.0.0.1:11434/"
-        model = "deepseek-r1:8b"
-        think = true
+        base_url = "https://ollama.molodetz.nl/" # 'https://ollama.molodetz.nl/' or 'http://127.0.0.1:11434/'
+        model = "gemma3:270m" # 'gpt-oss:20b', 'gemma3:270m'
+        think = false # true, false
 
     [llm.openai]
         api_key = "$OPENAI_API_KEY"
@@ -13,20 +13,32 @@
         backup_keys = "$GOOGLEAI_API_BACKUP_KEYS"
         model = "gemini-2.5-pro"
 
+    [llm.custom_inference]
+        model = "gpt-oss-gest-e2e" # '<PLACEHOLDER>-e2e' or '<PLACEHOLDER>-generation-only'
+
 [gest]
+    task = "evaluation" # "generation" or "evaluation"
+    data_path = "/workspaces/GEST/data"
+    manual_path = "/workspaces/GEST/data"
+    blacklist_path = "/workspaces/GEST/data"
     [gest.engine]
         retries = 3
         delay = 0
         [gest.engine.generation]
-            llm_provider = "googleai" # "ollama", "openai" or "googleai"
+            llm_provider = "custom_inference" # "ollama", "openai", "googleai" or "custom_inference"
             retries = 5
             delay = 0
+            include_detailed_instructions = true # true, false
+            include_few_shot_examples = false # true, false
         [gest.engine.improvement]
             llm_provider = "googleai" # "ollama", "openai" or "googleai"
+            skip_improvement_step = false # true, false
             retries = 3
             delay = 0
             text_similarity_threshold = 0.9
             include_exact_no_sentences = true # true, false
+            include_detailed_instructions = true # true, false
+            include_few_shot_examples = true # true, false
 
     [gest.logging]
         level = "INFO"
@@ -36,7 +48,7 @@
         dir = "/workspaces/GEST/templates"
 
     [gest.alerts]
-        enabled = true # true, false
+        enabled = false # true, false
         from_email = "$ALERTS_FROM_GMAIL_EMAIL"
         to_emails = "$ALERTS_TO_EMAILS"
 

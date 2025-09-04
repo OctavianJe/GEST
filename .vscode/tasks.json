@@ -20,6 +20,12 @@
       "type": "shell",
       "command": "pytest -q --cov=src --cov-report=term-missing tests/",
       "problemMatcher": []
-    }
+    },
+    {
+      "label": "Ollama serve",
+      "type": "shell",
+      "command": "ollama serve",
+      "problemMatcher": []
+    },
   ]
 }

@@ -1,0 +1,6 @@
+"dataset","id","reason"
+"ActivityNet Captions","v_t0ajvfx6dgA","Exceeded maximum attempts to generate a GEST object that meets the similarity threshold. Expected minimum text similarity score is 0.9. Minimum achieved text similarity score is 0.8636472821235657. Maximum achieved text similarity score is 0.8964841961860657."
+"ActivityNet Captions","v_fN2DiOswmOA","Exceeded maximum 5 attempts for GEST FlowOperationNameEnum.GENERATION."
+"ActivityNet Captions","v_STaS53CNlZI","Exceeded maximum 5 attempts for GEST FlowOperationNameEnum.GENERATION."
+"ActivityNet Captions","v_apPeChgjzs4","Exceeded maximum attempts to generate a GEST object that meets the similarity threshold. Expected minimum text similarity score is 0.9. Minimum achieved text similarity score is 0.836350679397583. Maximum achieved text similarity score is 0.8491846323013306."
+"ActivityNet Captions","v_fOuFF7dGPtI","Exceeded maximum attempts to generate a GEST object that meets the similarity threshold. Expected minimum text similarity score is 0.9. Minimum achieved text similarity score is 0.8763238787651062. Maximum achieved text similarity score is 0.8815720677375793."

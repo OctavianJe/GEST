@@ -1,6 +1,6 @@
 [project]
 name = "gest"
-version = "0.1.0"
+version = "0.2.0"
 description = "Master Thesis - Improve the Text Decoder for Graphs of Events in Space and Time"
 authors = [{ name = "Octavian Ploscaru", email = "octavian.ploscaru@stud.acs.upb.ro" }]
 readme = "README.md"
@@ -10,6 +10,7 @@ dependencies = [
     "envtoml>=0.1.2",
     "google-genai>=1.24.0",
     "jinja2>=3.1.6",
+    "matplotlib>=3.10.6",
     "ollama>=0.5.1",
     "openai>=1.93.0",
     "pandas>=2.3.0",

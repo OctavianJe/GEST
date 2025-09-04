@@ -83,6 +83,12 @@ class GESTEngine(BaseModel):
                     content=content,
                 )
 
+                if self._improvement_skip_step:
+                    logging.info(
+                        "Skipping improvement step is enabled, either if not recommended unless ablation study."
+                    )
+                    return initial_gest
+
                 # Step 2: Improve the GEST object
                 improved_gest = self._improve(
                     generated_gest=initial_gest,
@@ -143,7 +149,10 @@ class GESTEngine(BaseModel):
         logging.info("Executing GEST generation step.")
 
         user_prompt = self._compute_generation_user_prompt(content=content)
-        system_prompt = self._compute_generation_system_prompt()
+        system_prompt = self._compute_generation_system_prompt(
+            include_detailed_instructions=self._generation_include_detailed_instructions,
+            include_few_shot_examples=self._generation_include_few_shot_examples,
+        )
 
         def attempt_func(
             user_prompt: str,
@@ -202,7 +211,10 @@ class GESTEngine(BaseModel):
                 content=original_content, no_sentences=1
             )
 
-        system_prompt = self._compute_improvement_system_prompt()
+        system_prompt = self._compute_improvement_system_prompt(
+            include_detailed_instructions=self._improvement_include_detailed_instructions,
+            include_few_shot_examples=self._improvement_include_few_shot_examples,
+        )
 
         def attempt_func_with_new_provider(
             user_prompt: str,
@@ -381,6 +393,8 @@ class GESTEngine(BaseModel):
     def _compute_generation_system_prompt(
         self,
         template_name: str = "generation/system_prompt.jinja",
+        include_detailed_instructions: bool = True,
+        include_few_shot_examples: bool = True,
     ) -> str:
         """Computes the system prompt using a Jinja template."""
 
@@ -393,8 +407,8 @@ class GESTEngine(BaseModel):
                 GEST.model_json_schema(),
                 indent=2,
             ),
-            include_detailed_instructions=True,
-            include_few_shot_examples=True,
+            include_detailed_instructions=include_detailed_instructions,
+            include_few_shot_examples=include_few_shot_examples,
         )
 
     def _compute_generation_user_prompt(
@@ -417,6 +431,8 @@ class GESTEngine(BaseModel):
     def _compute_improvement_system_prompt(
         self,
         template_name: str = "improvement/system_prompt.jinja",
+        include_detailed_instructions: bool = True,
+        include_few_shot_examples: bool = True,
     ) -> str:
         """Computes the system prompt for GEST content improvement using a Jinja template."""
 
@@ -430,8 +446,8 @@ class GESTEngine(BaseModel):
                 indent=2,
             ),
             include_exact_no_sentences=self._improvement_include_exact_no_sentences,
-            include_detailed_instructions=True,
-            include_few_shot_examples=True,
+            include_detailed_instructions=include_detailed_instructions,
+            include_few_shot_examples=include_few_shot_examples,
         )
 
     def _compute_improvement_user_prompt(
@@ -523,11 +539,18 @@ class GESTEngine(BaseModel):
         )
         self._generation_retries = self._assign_retries_config(generation_configs)
         self._generation_delay = self._assign_delay_config(generation_configs)
+        self._generation_include_detailed_instructions = (
+            self._assign_include_detailed_instructions_config(generation_configs)
+        )
+        self._generation_include_few_shot_examples = (
+            self._assign_include_few_shot_examples_config(generation_configs)
+        )
 
         # Improvement configs
         self._improvement_llm_provider_enum = self._assign_llm_provider_config(
             improvement_configs
         )
+        self._improvement_skip_step = self._assign_skip_step_config(improvement_configs)
         self._improvement_retries = self._assign_retries_config(improvement_configs)
         self._improvement_delay = self._assign_delay_config(improvement_configs)
         self._improvement_text_similarity_threshold = (
@@ -535,6 +558,12 @@ class GESTEngine(BaseModel):
         )
         self._improvement_include_exact_no_sentences = (
             self._assign_include_exact_no_sentences_config(improvement_configs)
+        )
+        self._improvement_include_detailed_instructions = (
+            self._assign_include_detailed_instructions_config(improvement_configs)
+        )
+        self._improvement_include_few_shot_examples = (
+            self._assign_include_few_shot_examples_config(improvement_configs)
         )
 
     def _assign_llm_provider_config(self, configs: AttrDict) -> LLMProviderEnum:
@@ -544,7 +573,7 @@ class GESTEngine(BaseModel):
 
         if not isinstance(llm_provider, str):
             raise ConfigurationError(
-                "Invalid LLM Provider for GEST engine. Available providers are "
+                "Invalid LLM Provider for GEST engine. LLM Provider value must be a string."
             )
 
         try:
@@ -556,6 +585,18 @@ class GESTEngine(BaseModel):
             )
 
         return llm_provider
+
+    def _assign_skip_step_config(self, configs: AttrDict) -> bool:
+        """Assign the skip step configuration for GEST engine."""
+
+        skip_step = configs.skip_improvement_step
+
+        if not isinstance(skip_step, bool):
+            raise ConfigurationError(
+                "Invalid 'skip_step' for GEST engine. Provided value must be a boolean."
+            )
+
+        return skip_step
 
     def _assign_retries_config(self, configs: AttrDict) -> int:
         """Assign the retries configuration for GEST engine."""
@@ -580,6 +621,30 @@ class GESTEngine(BaseModel):
             )
 
         return delay
+
+    def _assign_include_detailed_instructions_config(self, configs: AttrDict) -> bool:
+        """Assign the include detailed instructions configuration for GEST engine."""
+
+        include_detailed_instructions = configs.include_detailed_instructions
+
+        if not isinstance(include_detailed_instructions, bool):
+            raise ConfigurationError(
+                "Invalid 'include_detailed_instructions' for GEST engine. Provided value must be a boolean."
+            )
+
+        return include_detailed_instructions
+
+    def _assign_include_few_shot_examples_config(self, configs: AttrDict) -> bool:
+        """Assign the include few shot examples configuration for GEST engine."""
+
+        include_few_shot_examples = configs.include_few_shot_examples
+
+        if not isinstance(include_few_shot_examples, bool):
+            raise ConfigurationError(
+                "Invalid 'include_few_shot_examples' for GEST engine. Provided value must be a boolean."
+            )
+
+        return include_few_shot_examples
 
     def _assign_text_similarity_threshold_config(self, configs: AttrDict) -> float:
         """Assign the text similarity threshold configuration for GEST engine."""

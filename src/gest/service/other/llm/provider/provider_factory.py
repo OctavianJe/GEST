@@ -1,5 +1,8 @@
 import logging
 
+from gest.service.other.llm.provider.custom_inference_llm_provider import (
+    CustomInferenceLLMProvider,
+)
 from gest.service.other.llm.provider.googleai_llm_provider import GoogleAILLMProvider
 from gest.service.other.llm.provider.ollama_llm_provider import OllamaLLMProvider
 from gest.service.other.llm.provider.openai_llm_provider import OpenAILLMProvider
@@ -24,6 +27,9 @@ class LLMProviderFactory:
 
         if type == LLMProviderEnum.GOOGLE_AI:
             return GoogleAILLMProvider()
+
+        if type == LLMProviderEnum.CUSTOM_INFERENCE:
+            return CustomInferenceLLMProvider()
 
         raise NotImplementedError(
             f"Invalid LLM Provider '{type}' for provider factory."

@@ -101,34 +101,51 @@ class OllamaLLMProvider(BaseLLMProvider):
             raise
 
         # Extract and append the assistant's response to the conversation history
-        response_content = chat_response.message.content
+        response = chat_response.message.content
 
-        if not isinstance(response_content, str):
-            error_message = "The response from the LLM is not a string."
-            logging.error(error_message)
-            raise ProviderValueError(error_message)
+        if not isinstance(response, str):
+            logging.error("The response from the LLM is not a string.")
+            raise ProviderValueError(
+                "Response was of type 'None'. Expected a response of type 'str'."
+            )
 
         # Append the assistant's response to the conversation history
         self._conversation_history.append(chat_response.message)
 
-        if expected_result_type == LLMExpectedResultType.JSON:
-            try:
-                json.loads(response_content)
-            except JSONDecodeError as exc:
-                logging.error(
-                    f"Failed to decode JSON from the response. Response: {response_content}"
-                )
-                raise ProviderJSONDecodeError(
-                    f"The response from the LLM is not a valid JSON string. JSONDecodeError: '{exc}'"
-                ) from exc
+        try:
+            # GoogleAI LLM provider returns response in markdown format. We need to extract the JSON part.
+            match = re.search(
+                r"^\s*(?:```(?:json)?\s*([\s\S]*?)\s*```|([\s\S]+))\s*$", response, re.I
+            )
 
-        return response_content
+            if match:
+                content = (match.group(1) or match.group(2)).strip()
+
+                if expected_result_type == LLMExpectedResultType.STRING:
+                    return content
+
+                if expected_result_type == LLMExpectedResultType.JSON:
+                    return json.loads(content)
+
+            # Raise exception
+            logging.error("The response from the LLM is not a valid one.")
+            raise ProviderValueError(
+                f"The response is not valid. A '{expected_result_type}' was expected."
+            )
+
+        except JSONDecodeError as exc:
+            logging.error(
+                f"Failed to decode JSON from the response. Response: '{response}'"
+            )
+            raise ProviderJSONDecodeError(
+                f"The response is not a valid JSON string. JSONDecodeError: '{exc}'"
+            ) from exc
 
     def _assign_configs(self, configs: AttrDict) -> None:
         """Get the default Ollama LLM provider configs from the configuration."""
 
-        self._model = self._assign_model_config(configs)
         self._base_url = self._assign_base_url_config(configs)
+        self._model = self._assign_model_config(configs)
         self._think = self._assign_think_config(configs)
 
     def _assign_model_config(self, configs: AttrDict) -> str:
@@ -138,6 +155,10 @@ class OllamaLLMProvider(BaseLLMProvider):
 
         if not isinstance(model, str):
             raise ConfigurationError("Provide a model name for Ollama LLM provider.")
+
+        local_models = self._list_local_models()
+        if model in local_models:
+            return model
 
         if ":" not in model:
             raise ConfigurationError(
@@ -221,6 +242,29 @@ class OllamaLLMProvider(BaseLLMProvider):
                 tags.add(m.group("tag"))
 
         return tags
+
+    def _list_local_models(self, timeout: int = 30) -> Set[str]:
+        """
+        Return locally available model names in the form 'base:tag' from the running Ollama.
+        """
+        try:
+            base = (self._base_url or "").rstrip("/")
+            if not base:
+                return set()
+
+            resp = requests.get(f"{base}/api/tags", timeout=timeout)
+            resp.raise_for_status()
+            payload = resp.json()
+            return {
+                str(m.get("name", "")).partition(":")[0]
+                for m in payload.get("models", [])
+                if isinstance(m, dict) and m.get("name")
+            }
+        except Exception as exc:
+            logging.warning(
+                f"Could not list local Ollama models at {self._base_url}: {exc}"
+            )
+            return set()
 
     def _assign_base_url_config(self, configs: AttrDict) -> str:
         """Assign the base url configuration for Ollama LLM provider."""
