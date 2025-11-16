@@ -6,3 +6,10 @@ services:
     volumes:
       - ..:/workspaces/GEST:cached
     command: sleep infinity
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

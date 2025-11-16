@@ -17,7 +17,7 @@
         model = "gpt-oss-gest-e2e" # '<PLACEHOLDER>-e2e' or '<PLACEHOLDER>-generation-only'
 
 [gest]
-    task = "evaluation" # "generation" or "evaluation"
+    task = "generation" # "generation" or "evaluation"
     data_path = "/workspaces/GEST/data"
     manual_path = "/workspaces/GEST/data"
     blacklist_path = "/workspaces/GEST/data"
@@ -25,11 +25,11 @@
         retries = 3
         delay = 0
         [gest.engine.generation]
-            llm_provider = "custom_inference" # "ollama", "openai", "googleai" or "custom_inference"
+            llm_provider = "googleai" # "ollama", "openai", "googleai" or "custom_inference"
             retries = 5
             delay = 0
             include_detailed_instructions = true # true, false
-            include_few_shot_examples = false # true, false
+            include_few_shot_examples = true # true, false
         [gest.engine.improvement]
             llm_provider = "googleai" # "ollama", "openai" or "googleai"
             skip_improvement_step = false # true, false
@@ -48,7 +48,7 @@
         dir = "/workspaces/GEST/templates"
 
     [gest.alerts]
-        enabled = false # true, false
+        enabled = true # true, false
         from_email = "$ALERTS_FROM_GMAIL_EMAIL"
         to_emails = "$ALERTS_TO_EMAILS"
 

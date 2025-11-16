@@ -11,6 +11,8 @@ from gest.common.helpers.gmail_helper import GmailHelper
 from gest.common.helpers.time_helper import TimeHelper
 from gest.dataset.source.activity_net_dataset import ActivityNetCaptionsDataset
 from gest.dataset.source.base_source_dataset import SourceDataset
+from gest.dataset.source.imar_dataset import ImarDataset
+from gest.dataset.source.imar_svo_dataset import ImarSvoDataset
 from gest.dataset.source.source_dataset_enum import SourceDatasetEnum
 from gest.dataset.target.gest_dataset import (
     GestBlacklistDataset,
@@ -99,6 +101,16 @@ def _get_source_datasets() -> List[SourceDataset]:
         Path("/workspaces/GEST/miscellaneous/datasets/ActivityNet Captions/val_2.json"),
     )
     datasets.append(anc)
+
+    imar = ImarDataset(
+        Path("/workspaces/GEST/miscellaneous/datasets/IMAR/v1.csv"),
+    )
+    datasets.append(imar)
+
+    imar_svo = ImarSvoDataset(
+        Path("/workspaces/GEST/miscellaneous/datasets/IMAR/v1.csv"),
+    )
+    datasets.append(imar_svo)
 
     return datasets
 

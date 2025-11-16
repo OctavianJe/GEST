@@ -20,6 +20,7 @@ dependencies = [
     "retry>=0.9.2",
     "scikit-learn>=1.7.0",
     "sentence-transformers>=4.1.0",
+    "torch",
     "tqdm>=4.67.1",
 ]
 
@@ -35,5 +36,11 @@ develop = [
     "ipython>=9.3.0",
 ]
 
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
 [tool.uv.sources]
 pygmtools = { git = "https://github.com/Thinklab-SJTU/pygmtools.git", rev = "80399b1b07722340dd8d6e1bcce2618395fac2db" }
+torch = { index = "pytorch-cu128" }
