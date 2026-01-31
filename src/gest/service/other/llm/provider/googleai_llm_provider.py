@@ -78,6 +78,7 @@ class GoogleAILLMProvider(BaseLLMProvider):
                 model=self._model,
                 contents=self._conversation_history,
                 config=GenerateContentConfig(
+                    response_mime_type="application/json",
                     system_instruction=system_prompt,
                 ),
             )
