@@ -7,7 +7,8 @@ RUN set -e && \
         curl \
         ca-certificates \
         gnupg \
-        git && \
+        git \
+        zstd && \
     \
     # Install uv
     curl -LsSf https://astral.sh/uv/install.sh | sh && \
