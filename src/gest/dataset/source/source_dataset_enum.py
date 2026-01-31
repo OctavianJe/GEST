@@ -7,3 +7,4 @@ class SourceDatasetEnum(str, Enum):
     ACTIVITY_NET_CAPTIONS = "ActivityNet Captions"
     IMAR = "IMAR"
     IMAR_SVO = "IMAR_SVO"
+    NARRATIVE_SIMILARITY_TASK = "Narrative Similarity Task"

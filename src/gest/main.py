@@ -13,6 +13,9 @@ from gest.dataset.source.activity_net_dataset import ActivityNetCaptionsDataset
 from gest.dataset.source.base_source_dataset import SourceDataset
 from gest.dataset.source.imar_dataset import ImarDataset
 from gest.dataset.source.imar_svo_dataset import ImarSvoDataset
+from gest.dataset.source.narrative_similarity_task_dataset import (
+    NarrativeSimilarityTaskDataset,
+)
 from gest.dataset.source.source_dataset_enum import SourceDatasetEnum
 from gest.dataset.target.gest_dataset import (
     GestBlacklistDataset,
@@ -111,6 +114,22 @@ def _get_source_datasets() -> List[SourceDataset]:
         Path("/workspaces/GEST/miscellaneous/datasets/IMAR/v1.csv"),
     )
     datasets.append(imar_svo)
+
+    narrative_similarity = NarrativeSimilarityTaskDataset(
+        Path(
+            "/workspaces/GEST/miscellaneous/datasets/Narrative Similarity Task/sample/sample_track_a.jsonl"
+        ),
+        Path(
+            "/workspaces/GEST/miscellaneous/datasets/Narrative Similarity Task/development/dev_track_a.jsonl"
+        ),
+        Path(
+            "/workspaces/GEST/miscellaneous/datasets/Narrative Similarity Task/synthetic-training/synthetic_data_for_classification.jsonl"
+        ),
+        Path(
+            "/workspaces/GEST/miscellaneous/datasets/Narrative Similarity Task/test/test_track_a.jsonl"
+        ),
+    )
+    datasets.append(narrative_similarity)
 
     return datasets
 
