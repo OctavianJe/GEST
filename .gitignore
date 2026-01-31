@@ -25,6 +25,8 @@ wheels/
 # Project files
 .env
 .secrets/gcloud/*
+data/gest.csv
 logs/*
 miscellaneous/datasets/*
 miscellaneous/.cache/*
+unsloth_compiled_cache
