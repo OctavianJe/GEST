@@ -1,0 +1,8 @@
+{
+  "metric_a": "gest_spectral_w2v_google_temporal",
+  "metric_b": "sbert_cosine",
+  "alpha": 0.0817878725917175,
+  "beta": 21.162622125782377,
+  "bias": -0.05102443408793712,
+  "tie_break": "a"
+}

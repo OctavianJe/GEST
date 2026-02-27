@@ -1,0 +1,8 @@
+{
+  "metric_a": "gest_spectral_w2v_google_temporal",
+  "metric_b": "gest_spectral_w2v_google_spatial",
+  "alpha": 0.07070966450734338,
+  "beta": 114.64269155346304,
+  "bias": 0.002099707148479829,
+  "tie_break": "a"
+}
