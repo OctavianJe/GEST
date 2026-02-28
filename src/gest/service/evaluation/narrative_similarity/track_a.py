@@ -120,6 +120,14 @@ def _normalize_text(text: Optional[str]) -> str:
     return text.replace("\n", " ").strip()
 
 
+def _parse_csv_list(raw: str) -> List[str]:
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
+def _metric_is_excluded(name: str, exclude_substrings: Sequence[str]) -> bool:
+    return any(token in name for token in exclude_substrings)
+
+
 def load_track_a_records(
     path: Path,
     *,
@@ -1108,6 +1116,22 @@ def main() -> None:
         default="chosen,score",
         help="Comma-separated LLM modes to evaluate from each file: chosen,score.",
     )
+    eval_all_cmd.add_argument(
+        "--exclude-metrics",
+        default="",
+        help=(
+            "Comma-separated substrings; metrics containing any substring are skipped "
+            "(e.g. temporal_spatial,llm_chosen,llm_score)."
+        ),
+    )
+    eval_all_cmd.add_argument(
+        "--labels-file",
+        default="",
+        help=(
+            "Optional JSONL labels file (text_a_is_closer) used to compute accuracy "
+            "when the dataset itself has no labels (e.g. test)."
+        ),
+    )
     search_cmd.add_argument("--method", choices=["grid", "logreg"], default="logreg")
 
     sweep_cmd = sub.add_parser(
@@ -1267,9 +1291,21 @@ def main() -> None:
         )
         _log_step(f"Loaded {len(records)} records")
 
-        text_names = [n.strip() for n in args.text_metrics.split(",") if n.strip()]
+        text_names = _parse_csv_list(args.text_metrics)
         graph_names = _all_graph_metric_names()
-        requested_metrics = graph_names + text_names
+        exclude_substrings = _parse_csv_list(args.exclude_metrics)
+        if exclude_substrings:
+            _log_step(
+                "Excluding metrics containing any of: "
+                + ", ".join(exclude_substrings)
+            )
+        requested_metrics = [
+            name
+            for name in (graph_names + text_names)
+            if not _metric_is_excluded(name, exclude_substrings)
+        ]
+        if not requested_metrics:
+            raise ValueError("No metrics left after applying --exclude-metrics.")
         _log_step("Building metric registry")
         metrics, missing = build_metric_registry(
             gest_store,
@@ -1284,13 +1320,24 @@ def main() -> None:
         output_dir = Path(args.output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        llm_modes = [m.strip() for m in args.llm_modes.split(",") if m.strip()]
+        llm_modes = _parse_csv_list(args.llm_modes)
         invalid_llm_modes = [m for m in llm_modes if m not in {"chosen", "score"}]
         if invalid_llm_modes:
             raise ValueError(
                 f"Invalid --llm-modes values: {invalid_llm_modes}. "
                 "Use a subset of: chosen,score."
             )
+
+        external_labels: Optional[np.ndarray] = None
+        if args.labels_file:
+            labels_path = Path(args.labels_file)
+            _log_step(f"Loading labels from {labels_path}")
+            external_labels = load_label_vector(labels_path)
+            if len(external_labels) != len(records):
+                raise ValueError(
+                    "Labels length mismatch for evaluate-all: "
+                    f"{len(external_labels)} vs {len(records)} records."
+                )
 
         if args.llm_output_dir:
             llm_dir = Path(args.llm_output_dir)
@@ -1331,26 +1378,39 @@ def main() -> None:
 
                 if "chosen" in llm_modes:
                     base = llm_metrics["llm_chosen"]
-                    metric_objs.append(
-                        PrecomputedCandidateMetric(
-                            name=f"llm_chosen_{suffix}",
-                            candidate_scores=base.candidate_scores,
-                            missing_value=base.missing_value,
+                    name = f"llm_chosen_{suffix}"
+                    if not _metric_is_excluded(name, exclude_substrings):
+                        metric_objs.append(
+                            PrecomputedCandidateMetric(
+                                name=name,
+                                candidate_scores=base.candidate_scores,
+                                missing_value=base.missing_value,
+                            )
                         )
-                    )
                 if "score" in llm_modes:
                     base = llm_metrics["llm_score"]
-                    metric_objs.append(
-                        PrecomputedCandidateMetric(
-                            name=f"llm_score_{suffix}",
-                            candidate_scores=base.candidate_scores,
-                            missing_value=base.missing_value,
+                    name = f"llm_score_{suffix}"
+                    if not _metric_is_excluded(name, exclude_substrings):
+                        metric_objs.append(
+                            PrecomputedCandidateMetric(
+                                name=name,
+                                candidate_scores=base.candidate_scores,
+                                missing_value=base.missing_value,
+                            )
                         )
-                    )
 
             parse_summary_path = output_dir / "llm_parse_summary.csv"
             _log_step(f"Writing LLM parse summary to {parse_summary_path}")
             pd.DataFrame(llm_parse_rows).to_csv(parse_summary_path, index=False)
+
+        if exclude_substrings:
+            metric_objs = [
+                metric
+                for metric in metric_objs
+                if not _metric_is_excluded(metric.name, exclude_substrings)
+            ]
+        if not metric_objs:
+            raise ValueError("No metric objects left to score after filtering.")
 
         results: List[Tuple[str, float | None]] = []
         for metric in metric_objs:
@@ -1365,7 +1425,9 @@ def main() -> None:
                     f"{metric.name}_b": scores_b,
                 }
             )
-            if any(label is not None for label in labels):
+            if external_labels is not None:
+                metric_df["label"] = external_labels.astype(bool)
+            elif any(label is not None for label in labels):
                 metric_df["label"] = [
                     bool(label) if label is not None else None for label in labels
                 ]
@@ -1377,7 +1439,10 @@ def main() -> None:
                 preds = scores_a >= scores_b
             else:
                 preds = scores_a > scores_b
-            acc = accuracy_from_predictions(metric_df, preds)
+            if external_labels is not None:
+                acc = accuracy_from_labels(preds, external_labels)
+            else:
+                acc = accuracy_from_predictions(metric_df, preds)
             results.append((metric.name, acc))
 
             metric_pred_path = output_dir / f"{metric.name}.jsonl"

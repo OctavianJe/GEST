@@ -1,0 +1,17 @@
+metric,accuracy
+rouge_l,0.5825
+sbert_cosine,0.58
+gest_ngm_glove300_temporal,0.5475
+bleu,0.5425
+gest_ngm_glove50_spatial,0.535
+gest_ngm_glove50_temporal,0.53
+gest_ngm_glove300_spatial,0.53
+gest_ngm_w2v_google_spatial,0.53
+gest_spectral_glove50_temporal,0.5225
+gest_spectral_glove300_temporal,0.515
+gest_spectral_glove50_spatial,0.5125
+gest_spectral_glove300_spatial,0.5125
+gest_spectral_w2v_google_temporal,0.5
+gest_ngm_w2v_google_temporal,0.4925
+gest_spectral_w2v_google_spatial,0.4725
+bleurt,0.4725
